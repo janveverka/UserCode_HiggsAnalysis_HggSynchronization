@@ -34,7 +34,7 @@ import ROOT
 reduce_precision = lambda x: x
 
 # output_file_name = 'plots.root'
-
+is8tev = True
 minrun=99999
 maxrun=0
 
@@ -48,6 +48,10 @@ lastrun=9999999999999
 
 fn1 = argv.pop(1)
 fn2 = argv.pop(1)
+
+if ('7tev' in fn1.lower() or '7tev' in fn2.lower() or
+    'r11ab' in fn1.lower() or '11ab' in fn2.lower()):
+    is8tev = False
 
 #_______________________________________________________________________________
 def get_sample_name(file_name):
@@ -80,9 +84,6 @@ def getlist(input):
                     else:
                         vars[j[0]] = float(j[1])
                     
-            #if run > lastrun :
-            #if run > lastrun or run == 200961 or run == 200976 or run == 201191 :
-            #if run > lastrun or run == 201191 :
             if run > lastrun :
                 continue
             
@@ -92,9 +93,6 @@ def getlist(input):
                 maxrun=run
                 
             if(lst.has_key((run, lumi, event))):
-                #print run, lumi, event
-                #print "newVars = ", "mgg:", vars["mgg"]
-                #print "oldVars = ", "mgg:", lst[(run,lumi,event)]["mgg"]
                 lstDuplEvents[ (run, lumi, event) ] = vars
                 continue
 
@@ -102,7 +100,6 @@ def getlist(input):
             lstRuns[  (run) ] = vars
             
         except Exception, e:
-            #print line
             print e
             
     evts = lst.keys()
@@ -132,11 +129,15 @@ def bookHisto(name,nbins,xmin,xmax,relative=False):
     return h
 
 #_______________________________________________________________________________
-def bookCatHisto(name, nbins):
-    return ROOT.TH2F(name,
+def bookCatHisto(name, nbins, labels=[]):
+    hist = ROOT.TH2F(name,
                      '%s;%s;%s' % (name, nameB, nameA),
-                     nbins, -0.5, nbins - 0.5,
-                     nbins, -0.5, nbins - 0.5)
+                     nbins + 1, -1.5, nbins - 0.5,
+                     nbins + 1, -1.5, nbins - 0.5)
+    for ibin, label in enumerate(labels):
+        for axis in [hist.GetXaxis(), hist.GetYaxis()]:
+            axis.SetBinLabel(ibin + 1, label)
+    return hist
 
 #_______________________________________________________________________________
 def fillHisto(h, varB, varA, relative=False):
@@ -147,7 +148,8 @@ def fillHisto(h, varB, varA, relative=False):
     y=(varB-varA)
     if relative and varA != 0.:
         y /= varA
-    h.Fill(varB, y)
+    if abs(varA + 999) > 1e-3 and abs(varB + 999) > 1e-3:
+        h.Fill(varB, y)
 
 #_______________________________________________________________________________
 histos = {
@@ -190,14 +192,28 @@ histos = {
     "ele2_phi"     : bookHisto("ele2_phi",     1000,  -6.5,   6.5, False),
 }
 
+if is8tev:
+    cat_labels = (['MIA'] + 
+                  ['Incl %d' % i for i in range(5)] +
+                  ['Dijet %d' % (i + 5) for i in range(3)] +
+                  ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH Lep', 'ttH Had',
+                   'VH Had', ''])
+else:
+    cat_labels = (['MIA'] + 
+                  ['Incl %d' % i for i in range(4)] +
+                  ['Dijet %d' % (i + 4) for i in range(2)] +
+                  ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH', 'VH Had', 
+                   ''])
 catHistos = {
-    'cat'   : bookCatHisto('cat', 15),
-    'tth' : bookCatHisto('tth', 4),
-    'vhLep' : bookCatHisto('vhLep', 4),
-    'vhMet' : bookCatHisto('vhMet', 3),
-    'vhHad' : bookCatHisto('vhHad', 3),
-    'numJets' : bookCatHisto('numJets', 12),
-    'numBJets' : bookCatHisto('numBJets', 6),
+    'cat'   : bookCatHisto('cat', 15, cat_labels),
+    'tth' : bookCatHisto('tth', 4, ['MIA', 'Untagged', 'Hadronic', 
+                                    'Leptonic', '']),
+    'vhLep' : bookCatHisto('vhLep', 4, ['MIA', 'Untagged', 'Loose', 'Tight',
+                                        '']),
+    'vhMet' : bookCatHisto('vhMet', 3, ['MIA', 'Untagged', 'Tagged', '']),
+    'vhHad' : bookCatHisto('vhHad', 3, ['MIA', 'Untagged', 'Tagged', '']),
+    'numJets' : bookCatHisto('numJets', 12, ['MIA'] + ['%d' % i for i in range(12)]),
+    'numBJets' : bookCatHisto('numBJets', 6, ['MIA'] + ['%d' % i for i in range(6)]),
 }
 
 differences = {}
@@ -238,7 +254,34 @@ only2.sort()
 
 nruns = (maxrun - minrun) / 100
 
-for ev in common:
+first_event = common[0]
+varsA = list1[first_event].keys()
+varsB = list2[first_event].keys()
+varsA.sort()
+varsB.sort()
+print varsA
+print varsB
+vars_common = set(varsA).intersection(set(varsB))
+vars_common = list(vars_common)
+vars_common.sort()
+vars_onlyA = list(set(varsA) - set(varsB))
+vars_onlyB = list(set(varsB) - set(varsA))
+print 'Common vars:', len(vars_common)
+print '    %d only %s:' % (len(vars_onlyA), nameA), ', '.join(vars_onlyA) 
+print '    %d only %s:' % (len(vars_onlyB), nameB), ', '.join(vars_onlyB) 
+
+mia_row = {}
+for x in vars_common:
+    mia_row[x] = -999.
+    if x in catHistos:
+        mia_row[x] = -1.
+
+for ev in only1:
+    list2[ev] = mia_row
+for ev in only2:
+    list1[ev] = mia_row
+
+for ev in common + only1 + only2:
 
     setA = list1[ev]
     setB = list2[ev]
@@ -250,9 +293,6 @@ for ev in common:
     for name, hist in histos.iteritems():
         try:
             fillHisto( hist, setB[name], setA[name], hist.relative )
-            differences[name].append((setB[name] - setA[name], ev))
-            if abs(setA[name]) > 0.:
-                ratios[name].append((setB[name] / setA[name], ev))
 
         except Exception, e:
             print 'Caught exception', e
