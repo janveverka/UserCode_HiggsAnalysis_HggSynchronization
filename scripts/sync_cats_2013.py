@@ -135,7 +135,7 @@ def bookCatHisto(name, nbins, labels=[]):
                      nbins + 1, -1.5, nbins - 0.5,
                      nbins + 1, -1.5, nbins - 0.5)
     for ibin, label in enumerate(labels):
-        for axis in [hist.GetXaxis(), hist.GetYaxis()]:
+        for axis in [hist.GetXaxis(), hist.GetYaxis()][1:]:
             axis.SetBinLabel(ibin + 1, label)
     return hist
 
@@ -194,18 +194,19 @@ histos = {
 
 if is8tev:
     cat_labels = (['MIA'] + 
-                  ['Incl %d' % i for i in range(5)] +
-                  ['Dijet %d' % (i + 5) for i in range(3)] +
+                  ['Incl %d'  % i for i in range(5)] +
+                  ['Dijet %d' % i for i in range(3)] +
                   ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH Lep', 'ttH Had',
                    'VH Had', ''])
 else:
     cat_labels = (['MIA'] + 
-                  ['Incl %d' % i for i in range(4)] +
-                  ['Dijet %d' % (i + 4) for i in range(2)] +
+                  ['Incl %d'  % i for i in range(4)] +
+                  ['Dijet %d' % i for i in range(2)] +
                   ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH', 'VH Had', 
                    ''])
+
 catHistos = {
-    'cat'   : bookCatHisto('cat', 15, cat_labels),
+    'cat'   : bookCatHisto('cat', len(cat_labels) - 1, cat_labels),
     'tth' : bookCatHisto('tth', 4, ['MIA', 'Untagged', 'Hadronic', 
                                     'Leptonic', '']),
     'vhLep' : bookCatHisto('vhLep', 4, ['MIA', 'Untagged', 'Loose', 'Tight',
@@ -367,7 +368,10 @@ names=histos.keys()
 names.sort()
 for name in names:
     h = histos[name]
-    c = ROOT.TCanvas ( name )
+    if name == 'cat':
+        c = ROOT.TCanvas ( name, name, 1000, 700 )
+    else:
+        c = ROOT.TCanvas(name)
     d = None
     c.SetGrid()
     c.SetLogz()
@@ -407,4 +411,86 @@ for name in names:
     h.Draw('colz')
     h.Draw('text same')
     c.SaveAs('plots/%s.png' % name)
+
+
+## Sum yields over all categories
+## Initialize yields
+insync = {}; total = {}
+onlya  = {}; onlyb = {}
+uniqa  = {}; uniqb = {}
+for label in cat_labels + ['All']:
+    insync[label] = 0
+    onlya [label] = onlyb[label] = 0
+    uniqa [label] = uniqb[label] = 0
+
+cat_hist = catHistos['cat']
+num_cats = cat_hist.GetXaxis().GetNbins() - 2
+## This may be confusing: name A and B correspond to the y and x axes, 
+## respectively! So the (name, axis) pairs are (A, y), (B, x)
+for xbin, xlabel in enumerate(cat_labels):
+    xbin += 1
+    for ybin, ylabel in enumerate(cat_labels):
+        ybin += 1
+        bin = cat_hist.GetBin(xbin, ybin)
+        content = int(cat_hist.GetBinContent(bin))
+        if xbin == ybin:
+            insync['All' ] += content
+            insync[xlabel] += content
+        elif xbin == 1:
+            uniqa['All' ] += content
+            uniqa[ylabel] += content
+        elif ybin == 1:
+            uniqb['All' ] += content
+            uniqb[xlabel] += content
+        else:
+            onlya['All']  += content
+            onlyb['All']  += content
+            onlya[ylabel] += content
+            onlyb[xlabel] += content
+
+for c in cat_labels + ['All']:
+    total[c] = insync[c] + onlya[c] + onlyb[c] + uniqa[c] + uniqb[c]
+total['All'] -= onlya['All']
+
+cat_table = [['ID', 'Category', 'In Sync', 
+              'Only '   + nameA, 'Only '   + nameB, 
+              'Unique ' + nameA, 'Unique ' + nameB],]
+# cat_table.append(['', 'All', insync['All'],
+#                  onlya['All'], onlyb['All'],
+#                  uniqa['All'], uniqb['All'],])
+for cat_id, label in [(-1, 'All'),] + list(enumerate(cat_labels)):
+    row = ['%2d' % cat_id, label]
+    for events in [insync, onlya, onlyb, uniqa, uniqb]:
+        row.append(str(events[label]))
+    cat_table.append(row)
+
+## Viva obfuscation! These are widths of the table columns
+widths = map(lambda column: max(map(len, column)), zip(*cat_table))
+
+header = cat_table[0]
+del cat_table[0]
+header = [item.ljust(width) for item, width in zip(header, widths)]
+col_sep = '   '
+print col_sep.join(header)
+print '-' * (sum(widths) + len(col_sep) * (len(widths) - 1))
+## More Python obfusly
+justifily = [str.rjust, str.ljust] + (len(widths) - 2) * [str.rjust]
+for row in cat_table:
+    if row[1] in ['MIA', '']:
+        continue
+    row = [just(i, w) for just, i, w in zip(justifily, row, widths)]
+    print col_sep.join(row)
+print '%' * (sum(widths) + len(col_sep) * (len(widths) - 1))
+for row in cat_table:
+    label = row[1]
+    if label in ['MIA', '']:
+        continue
+    prow = row[:2]
+    for i in row[2:]:
+        if total[label] > 0:
+            prow.append('%.2f' % (100 * float(i) / total[label]))
+        else:
+            append('-')
+    prow = [just(i, w) for just, i, w in zip(justifily, prow, widths)]
+    print col_sep.join(prow)
 
