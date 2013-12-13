@@ -26,12 +26,18 @@ from pprint import pprint
 from math import fabs
 import operator
 import array
+import shutil
+import os
 
 import ROOT
 #from FWLite.Tools.double32ioemulator import Double32IOEmulator
 
 # reduce_precision = Double32IOEmulator()
 reduce_precision = lambda x: x
+
+if not os.path.exists('./plots'):
+    os.mkdir('./plots')
+shutil.copy('./index.php', './plots')
 
 # output_file_name = 'plots.root'
 is8tev = True
@@ -172,6 +178,7 @@ histos = {
     "dijetMVA"     : bookHisto("dijetMVA",     1000,    -2,     2, False),
     "combiMVA"     : bookHisto("combiMVA",     1000,    -2,     2, False),
     "cosThetaStar" : bookHisto("cosThetaStar", 1000,    -2,     2, False),
+    "bjet_csv"     : bookHisto("bjet_csv"    , 1000,    -2,     2, False),
     "jet1_pt"      : bookHisto("jet1_pt",      1000,     0,  2000,  True),
     "jet1_eta"     : bookHisto("jet1_eta",     1000,    -6,     6, False),
     "jet1_phi"     : bookHisto("jet1_phi",     1000,  -6.5,   6.5, False),
@@ -459,7 +466,7 @@ cat_table = [['ID', 'Category', 'In Sync',
 #                  onlya['All'], onlyb['All'],
 #                  uniqa['All'], uniqb['All'],])
 for cat_id, label in [(-1, 'All'),] + list(enumerate(cat_labels)):
-    row = ['%2d' % cat_id, label]
+    row = ['%2d' % (cat_id - 1), label]
     for events in [insync, onlya, onlyb, uniqa, uniqb]:
         row.append(str(events[label]))
     cat_table.append(row)
@@ -471,16 +478,22 @@ header = cat_table[0]
 del cat_table[0]
 header = [item.ljust(width) for item, width in zip(header, widths)]
 col_sep = '   '
-print col_sep.join(header)
-print '-' * (sum(widths) + len(col_sep) * (len(widths) - 1))
+
+report = []
+report.append('*** EVENTS ***')
+report.append(col_sep.join(header))
+report.append('-' * (sum(widths) + len(col_sep) * (len(widths) - 1)))
 ## More Python obfusly
 justifily = [str.rjust, str.ljust] + (len(widths) - 2) * [str.rjust]
 for row in cat_table:
     if row[1] in ['MIA', '']:
         continue
     row = [just(i, w) for just, i, w in zip(justifily, row, widths)]
-    print col_sep.join(row)
-print '%' * (sum(widths) + len(col_sep) * (len(widths) - 1))
+    report.append(col_sep.join(row))
+report.append('')
+report.append('*** PERCENTAGES ***')
+report.append(col_sep.join(header))
+report.append('-' * (sum(widths) + len(col_sep) * (len(widths) - 1)))
 for row in cat_table:
     label = row[1]
     if label in ['MIA', '']:
@@ -492,5 +505,10 @@ for row in cat_table:
         else:
             append('-')
     prow = [just(i, w) for just, i, w in zip(justifily, prow, widths)]
-    print col_sep.join(prow)
+    report.append(col_sep.join(prow))
+
+
+report_file_name = './plots/summary.txt'
+with open(report_file_name, 'w') as report_file:
+    report_file.write('\n'.join(report))
 

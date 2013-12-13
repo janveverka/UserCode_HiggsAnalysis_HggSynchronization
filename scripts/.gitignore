@@ -1,0 +1,11 @@
+plots
+dumps
+13-??-??
+*.log
+*.bak
+*.root
+globe*.txt
+globe*.dat
+mit*.txt
+ggA*.txt
+.DS_Store
