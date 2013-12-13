@@ -145,12 +145,26 @@ print varsA
 print varsB
 vars_common = set(varsA).intersection(set(varsB))
 vars_common = list(vars_common)
-vars_common.sort()
 vars_onlyA = list(set(varsA) - set(varsB))
 vars_onlyB = list(set(varsB) - set(varsA))
+vars_common.sort()
+vars_onlyA.sort()
+vars_onlyB.sort()
 print 'Common vars:', len(vars_common)
 print '    %d only %s:' % (len(vars_onlyA), nameA), ', '.join(vars_onlyA) 
 print '    %d only %s:' % (len(vars_onlyB), nameB), ', '.join(vars_onlyB) 
+
+mia_row = {}
+for x in vars_common:
+    mia_row[x] = -99.
+    if x in vars_common:
+        mia_row[x] = -1.
+
+for ev in only1:
+    list2[ev] = mia_row
+for ev in only2:
+    list1[ev] = mia_row
+
 
 print "Writing merged ASCII dump in `merged_ascii_dump.txt'"
 
@@ -163,7 +177,7 @@ with open('merged_ascii_dump.txt', 'w') as ascii_output:
     ascii_output.write('#     Index 1: %s\n' % fn2)
     ascii_output.write('# Leaf descriptor: ' + leaf_descriptor ) 
     ascii_output.write('\n')
-    for ev in common:
+    for ev in common + only1 + only2:
         setA = list1[ev]
         setB = list2[ev]
         if len(setA) == 0 or len(setB) == 0:
