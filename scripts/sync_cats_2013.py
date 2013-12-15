@@ -223,6 +223,7 @@ catHistos = {
     'numJets' : bookCatHisto('numJets', 12, ['MIA'] + ['%d' % i for i in range(12)]),
     'numBJets' : bookCatHisto('numBJets', 6, ['MIA'] + ['%d' % i for i in range(6)]),
 }
+hist_cat_msync = bookCatHisto('cat_msync', len(cat_labels) - 1, cat_labels)
 
 differences = {}
 ratios = {}
@@ -307,6 +308,8 @@ for ev in common + only1 + only2:
             pass
     for name, hist in catHistos.iteritems():
         hist.Fill(setB[name], setA[name])
+    if 2 * abs(setA['mass'] - setB['mass']) / (setA['mass'] + setB['mass']) < 0.003:
+        hist_cat_msync.Fill(setB['cat'], setA['cat'])
 
 print "\n"
 print "Common %d" % len(common)
@@ -422,13 +425,14 @@ for name in names:
 
 ## Sum yields over all categories
 ## Initialize yields
-insync = {}; total = {}
-onlya  = {}; onlyb = {}
-uniqa  = {}; uniqb = {}
+total = {}
+msync  = {}; mdesync = {}
+onlya  = {}; onlyb   = {}
+uniqa  = {}; uniqb   = {}
 for label in cat_labels + ['All']:
-    insync[label] = 0
-    onlya [label] = onlyb[label] = 0
-    uniqa [label] = uniqb[label] = 0
+    msync[label] = mdesync[label] = 0
+    onlya[label] = onlyb  [label] = 0
+    uniqa[label] = uniqb  [label] = 0
 
 cat_hist = catHistos['cat']
 num_cats = cat_hist.GetXaxis().GetNbins() - 2
@@ -440,9 +444,12 @@ for xbin, xlabel in enumerate(cat_labels):
         ybin += 1
         bin = cat_hist.GetBin(xbin, ybin)
         content = int(cat_hist.GetBinContent(bin))
+        content_msync = int(hist_cat_msync.GetBinContent(bin))
         if xbin == ybin:
-            insync['All' ] += content
-            insync[xlabel] += content
+            msync['All' ] += content_msync
+            msync[xlabel] += content_msync
+            mdesync['All' ] += (content - content_msync)
+            mdesync[xlabel] += (content - content_msync)
         elif xbin == 1:
             uniqa['All' ] += content
             uniqa[ylabel] += content
@@ -456,18 +463,16 @@ for xbin, xlabel in enumerate(cat_labels):
             onlyb[xlabel] += content
 
 for c in cat_labels + ['All']:
-    total[c] = insync[c] + onlya[c] + onlyb[c] + uniqa[c] + uniqb[c]
+    total[c] = (msync[c] + mdesync[c] + onlya[c] + onlyb[c] + uniqa[c] + 
+                uniqb[c])
 total['All'] -= onlya['All']
 
-cat_table = [['ID', 'Category', 'In Sync', 
+cat_table = [['ID', 'Category', 'M-Sync', 'M-Desync', 
               'Only '   + nameA, 'Only '   + nameB, 
               'Unique ' + nameA, 'Unique ' + nameB],]
-# cat_table.append(['', 'All', insync['All'],
-#                  onlya['All'], onlyb['All'],
-#                  uniqa['All'], uniqb['All'],])
 for cat_id, label in [(-1, 'All'),] + list(enumerate(cat_labels)):
     row = ['%2d' % (cat_id - 1), label]
-    for events in [insync, onlya, onlyb, uniqa, uniqb]:
+    for events in [msync, mdesync, onlya, onlyb, uniqa, uniqb]:
         row.append(str(events[label]))
     cat_table.append(row)
 
