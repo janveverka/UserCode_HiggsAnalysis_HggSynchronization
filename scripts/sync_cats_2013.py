@@ -41,6 +41,7 @@ shutil.copy('./index.php', './plots')
 
 # output_file_name = 'plots.root'
 is8tev = True
+ismfa = True
 minrun=99999
 maxrun=0
 
@@ -55,9 +56,11 @@ lastrun=9999999999999
 fn1 = argv.pop(1)
 fn2 = argv.pop(1)
 
-if ('7tev' in fn1.lower() or '7tev' in fn2.lower() or
-    'r11ab' in fn1.lower() or '11ab' in fn2.lower()):
-    is8tev = False
+for fn in [fn1.lower(), fn2.lower()]:
+    if ('7tev' in fn or 'r11' in fn or 's11' in fn):
+        is8tev = False
+    if ('cic' in fn):
+        ismfa = False
 
 #_______________________________________________________________________________
 def get_sample_name(file_name):
@@ -199,18 +202,31 @@ histos = {
     "ele2_phi"     : bookHisto("ele2_phi",     1000,  -6.5,   6.5, False),
 }
 
-if is8tev:
+if is8tev and ismfa:
     cat_labels = (['MIA'] + 
                   ['Incl %d'  % i for i in range(5)] +
                   ['Dijet %d' % i for i in range(3)] +
                   ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH Lep', 'ttH Had',
                    'VH Had', ''])
-else:
+elif not is8tev and ismfa:
     cat_labels = (['MIA'] + 
                   ['Incl %d'  % i for i in range(4)] +
                   ['Dijet %d' % i for i in range(2)] +
                   ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH', 'VH Had', 
                    ''])
+elif is8tev and not ismfa:
+    cat_labels = (['MIA'] + 
+                  ['Incl %d'  % i for i in range(8)] +
+                  ['Dijet %d' % i for i in range(2)] +
+                  ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH Lep', 'ttH Had',
+                   'VH Had', ''])
+else:
+    cat_labels = (['MIA'] + 
+                  ['Incl %d'  % i for i in range(8)] +
+                  ['Dijet %d' % i for i in range(2)] +
+                  ['VH Lep 0', 'VH Lep 1', 'VH MET', 'ttH', 'VH Had', 
+                   ''])
+
 
 catHistos = {
     'cat'   : bookCatHisto('cat', len(cat_labels) - 1, cat_labels),
