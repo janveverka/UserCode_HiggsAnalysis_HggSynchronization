@@ -28,12 +28,22 @@ import operator
 import array
 import shutil
 import os
+import ctypes
 
 import ROOT
 #from FWLite.Tools.double32ioemulator import Double32IOEmulator
 
+require_same_photons = True
 # reduce_precision = Double32IOEmulator()
 reduce_precision = lambda x: x
+
+## Hack around the Globe bug with event number being uint32 instead of uint64
+use_32bit_event_number = True
+if (use_32bit_event_number):
+    reduce_precision_uint = lambda x: ctypes.c_uint32(x).value
+else:
+    reduce_precision_uint = lambda x: x # do nothing
+
 
 if not os.path.exists('./plots'):
     os.mkdir('./plots')
@@ -89,7 +99,7 @@ def getlist(input):
                 if i != "" and ":" in i:
                     j = i.split(":")
                     if j[0] == "run" or j[0] == "lumi" or j[0] == "event" or j[0] == "type":
-                        globals()[j[0]] = abs(int(j[1]))
+                        globals()[j[0]] = reduce_precision_uint(int(j[1]))
                     else:
                         vars[j[0]] = float(j[1])
                     
@@ -314,7 +324,14 @@ for ev in common + only1 + only2:
     if len(setA) == 0 or len(setB) == 0:
         continue
 
-    repeat=""
+    if (require_same_photons and
+        setA['pho1_e'] > 0 and setB['pho1_e'] > 0 and
+        setA['pho2_e'] > 0 and setB['pho2_e'] > 0 and
+        abs(setA['pho1_e']-setB['pho1_e'])/setA['pho1_e'] > 0.003 and
+        abs(setA['pho2_e']-setB['pho2_e'])/setA['pho2_e'] > 0.003):
+            print "skip", ev
+            continue
+
     for name, hist in histos.iteritems():
         try:
             fillHisto( hist, setB[name], setA[name], hist.relative )
@@ -533,3 +550,25 @@ report_file_name = './plots/summary.txt'
 with open(report_file_name, 'w') as report_file:
     report_file.write('\n'.join(report))
 
+
+def write_unique_events_to_file(names):
+    global nameA, nameB
+    global only1, only2
+    global list1, list2
+    for my_name in names:
+        my_list, my_set_list = {nameA: (only1, list1), nameB: (only2, list2)}[my_name]
+        my_file_name = './plots/events_only_in_%s.txt' % my_name
+        with open(my_file_name, 'w') as my_file:
+            my_file.write('## == Unique events only in the %s framework. ==\n' % my_name)
+            my_file.write('## %s input file: %s\n' % (nameA, fn1))    
+            my_file.write('## %s input file: %s\n' % (nameB, fn2))    
+            my_file.write('## run:lumi:event         category\n')
+            # my_file.write('## run:lumi:event\n')
+            for event_id in my_list:
+                my_set = my_set_list[event_id]
+                my_file.write('%d:%d:%d' % event_id)
+                # my_file.write('\n')
+                my_file.write('   %2d\n' % my_set['cat'])
+## write_unique_events_to_file
+
+write_unique_events_to_file([nameA, nameB])

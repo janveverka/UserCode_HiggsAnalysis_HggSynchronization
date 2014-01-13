@@ -1,0 +1,354 @@
+
+
+======> EVENT:83021 (ttH had in Globe, inclusive 3 in MIT)
+ run             = 200190
+ lumi            = 163
+ event           = 210601324
+
+Killed in MIT by (Table 31 on page 144 of AN-13-253_V5.pdf):
+
+    diphoMVA > -0.2
+
+We observe diphoMVA = -0.211489 in both Globe and MIT.
+
+ pho1_pt * mass / 120 = 108.35590, 108.35264 > 60
+ pho2_pt * mass / 120 = 36.609607, 36.609159 > 30
+ 
+ bjet_csv        = 0.961908, 
+                  0.961914
+ cat             = 12, 
+                  3
+ diphoMVA        = -0.211489, 
+                  -0.211489
+ ele1_pt         = -999, 
+                  -999
+ jet1_eta        = -1.27656, 
+                  -1.27655
+ jet1_phi        = -0.815787, 
+                  -0.815796
+ jet1_pt         = 90.3508, 
+                  90.3515
+ jet2_eta        = 0.82305, 
+                  0.823059
+ jet2_phi        = -1.64195, 
+                  -1.64197
+ jet2_pt         = 62.1051, 
+                  62.1047
+ dmass_1m2o1     = 7.56e-6
+ met             = 32.7811, 
+                  32.7812
+ met_phi         = 1.0332, 
+                  1.03321
+ mu1_pt          = -999, 
+                  -999
+ numBJets        = 1, 
+                  1
+ numJets         = 6, 
+                  6
+ pho1_e          = 99.2908, 
+                  99.2886
+ pho1_eErr       = 0.627741, 
+                  0.627727
+ pho1_eta        = 0.137847, 
+                  0.13785
+ pho1_etaWidth   = 0.010675, 
+                  0.010675
+ pho1_idMVA      = 0.180614, 
+                  0.180614
+ pho1_phi        = -3.13056, 
+                  -3.13055
+ pho1_phiWidth   = 0.0178599, 
+                  0.0178595
+ pho1_r9         = 0.955815, 
+                  0.955811
+ pho2_e          = 50.8254, 
+                  50.8257
+ pho2_eErr       = 0.311259, 
+                  0.311142
+ pho2_eta        = -0.988334, 
+                  -0.988348
+ pho2_etaWidth   = 0.0118986, 
+                  0.0118985
+ pho2_idMVA      = 0.245368, 
+                  0.245368
+ pho2_phi        = 0.25807, 
+                  0.258065
+ pho2_phiWidth   = 0.0120179, 
+                  0.0120177
+ pho2_r9         = 0.948771, 
+                  0.948761
+ tth             = 1, 
+                  0
+ uncorrMet       = 34.4633, 
+                  34.4633
+ uncorrMet_phi   = 0.89586, 
+                  0.895865
+ vertexId0       = 0, 
+                  0
+ vertexMva0      = 0.995397, 
+                  0.995397
+ vertex_z        = 1.14747, 
+                  1.14746
+ vhHad           = 0, 
+                  0
+ vhLep           = 0, 
+                  0
+ vhMet           = 0, 
+                  0
+
+======> EVENT:148875 (tth lep in Globe, VH lep loose in MIT)
+ run             = 205921
+ lumi            = 484
+ event           = 703719064
+ cat             = 11, 
+                  9
+
+Killed in MIT by 
+      
+      numJets >= 2 && 
+      numBJets >= 1
+
+We observe these values in MIT:
+
+      numJets: 1
+      numBJets: 0
+
+A jet with pt = 65.814 and eta = 2.06116 passes the B-jet ID but fails the
+jet ID.
+
+More details from the dump (first line corresponds to Globe, 2nd line to MIT):
+ diphoMVA        = -0.24522, 
+                  -0.24522
+ ele1_eta        = 1.78998, 
+                  1.78998
+ ele1_phi        = 0.0658185, 
+                  0.0658188
+ ele1_pt         = 29.6282, 
+                  29.6279
+ jet1_eta        = 0.955637, 
+                  0.955627
+ jet1_phi        = -0.0734688, 
+                  -0.0734673
+ jet1_pt         = 81.0674, 
+                  81.0666
+ jet2_eta        = -999, 
+                  1.83917
+ jet2_phi        = -999, 
+                  0.0586395
+ jet2_pt         = -999, 
+                  50.3659
+ dmass_1m2o1     = -1.94e-4
+ met             = 23.0072, 
+                  23.0071
+ met_phi         = 2.97857, 
+                  2.97857
+ mu1_pt          = -999, 
+                  -999
+ numBJets        = 0, 
+                  0
+ numJets         = 1, 
+                  2
+ pho1_e          = 223.313, 
+                  223.41
+ pho1_eErr       = 1.86472, 
+                  1.85348
+ pho1_eta        = 1.30042, 
+                  1.30044
+ pho1_etaWidth   = 0.0103708, 
+                  0.0103707
+ pho1_idMVA      = 0.125684, 
+                  0.125684
+ pho1_phi        = 2.29838, 
+                  2.29841
+ pho1_phiWidth   = 0.0223433, 
+                  0.0223436
+ pho1_r9         = 0.902983, 
+                  0.902985
+ pho1_sieie      = 0.00885651, 
+                  0.0088563
+ pho2_e          = 316.906, 
+                  316.906
+ pho2_eErr       = 5.56839, 
+                  5.56839
+ pho2_eta        = 2.40709, 
+                  2.40705
+ pho2_etaWidth   = 0.028125, 
+                  0.0281248
+ pho2_idMVA      = 0.206359, 
+                  0.206359
+ pho2_phi        = -1.9485, 
+                  -1.9485
+ pho2_phiWidth   = 0.0175754, 
+                  0.0175753
+ pho2_r9         = 0.982132, 
+                  0.982147
+ pho2_sieie      = 0.0230669, 
+                  0.0230665
+ tth             = 2, 
+                  0
+ uncorrMet       = 13.4407, 
+                  13.4407
+ uncorrMet_phi   = 3.04526, 
+                  3.04525
+ vertexId0       = 1, 
+                  1
+ vertexMva0      = 0.991901, 
+                  0.991901
+ vertex_z        = -1.28733, 
+                  -1.28735
+ vhHad           = 0, 
+                  0
+ vhLep           = 0, 
+                  1
+ vhMet           = 0, 
+                  0
+
+======> EVENT:14530 (tth in globe, vbf 1 in MIT)
+ run             = 172952
+ lumi            = 1118
+ event           = 1279068855
+ bjet_csv        = 0.984039, 
+                  0.984039
+ cat             = 9, 
+                  5
+ combiMVA        = 0.93465, 
+                  0.93465
+ cosThetaStar    = -999, 
+                  0.179586
+ dijetMVA        = 0.427118, 
+                  0.427118
+ diphoMVA        = 0.993885, 
+                  0.993885
+ ele1_eta        = -999, 
+                  -999
+ ele1_phi        = -999, 
+                  -999
+ ele1_pt         = -999, 
+                  -999
+ jet1_eta        = 0.146753, 
+                  0.146751
+ jet1_phi        = 1.95408, 
+                  1.9541
+ jet1_pt         = 436.176, 
+                  436.174
+ jet2_eta        = 0.888815, 
+                  0.888824
+ jet2_phi        = -0.185265, 
+                  -0.185265
+ jet2_pt         = 223.975, 
+                  223.972
+ mass            = 123.301, 
+                  123.299
+ met             = 18.6714, 
+                  18.6717
+ met_phi         = -1.01285, 
+                  -1.01285
+ mu1_eta         = -999, 
+                  -999
+ mu1_phi         = -999, 
+                  -999
+ mu1_pt          = -999, 
+                  -999
+ mu2_eta         = -999, 
+                  -999
+ mu2_phi         = -999, 
+                  -999
+ mu2_pt          = -999, 
+                  -999
+ numBJets        = 1, 
+                  1
+ numJets         = 7, 
+                  7
+ pho1_ESEffSigmaRR = 0, 
+                  0
+ pho1_EnScale    = 1.00545, 
+                  0.9944
+ pho1_e          = 159.064, 
+                  159.061
+ pho1_eErr       = 1.03749, 
+                  1.03747
+ pho1_eta        = 0.327697, 
+                  0.327706
+ pho1_etaWidth   = 0.00770546, 
+                  0.00770545
+ pho1_idMVA      = 0.253617, 
+                  0.253617
+ pho1_pfChargedIsoBad03 = 0, 
+                  0
+ pho1_pfChargedIsoGood03 = 0, 
+                  0
+ pho1_pfPhotonIso03 = 0, 
+                  0
+ pho1_phi        = -1.67677, 
+                  -1.67679
+ pho1_phiWidth   = 0.011688, 
+                  0.0116878
+ pho1_r9         = 0.962175, 
+                  0.962189
+ pho1_s4Ratio    = 0.903815, 
+                  0
+ pho1_scRawE     = 159.222, 
+                  159.219
+ pho1_sieie      = 0.00921074, 
+                  0.00921059
+ pho2_ESEffSigmaRR = 0, 
+                  0
+ pho2_EnScale    = 1.00862, 
+                  0.9944
+ pho2_e          = 100.538, 
+                  100.537
+ pho2_eErr       = 0.773535, 
+                  0.775151
+ pho2_eta        = -0.0467283, 
+                  -0.0467283
+ pho2_etaWidth   = 0.00811826, 
+                  0.00811815
+ pho2_idMVA      = 0.216155, 
+                  0.216155
+ pho2_pfChargedIsoBad03 = 0.544032, 
+                  0
+ pho2_pfChargedIsoGood03 = 0.544032, 
+                  0
+ pho2_pfPhotonIso03 = 0, 
+                  0
+ pho2_phi        = -2.64192, 
+                  -2.64194
+ pho2_phiWidth   = 0.012329, 
+                  0.0123291
+ pho2_r9         = 0.961954, 
+                  0.961945
+ pho2_scRawE     = 100.618, 
+                  100.617
+ pho2_sieie      = 0.0091651, 
+                  0.00916529
+ probmva         = 0.999812, 
+                  0.999812
+ tth             = 2, 
+                  1
+ uncorrMet       = 25.5127, 
+                  25.5128
+ uncorrMet_phi   = -0.726756, 
+                  -0.726766
+ vbf_Zeppenfeld  = 0.315275, 
+                  0.315274
+ vbf_dEtaJJ      = 0.742062, 
+                  0.742073
+ vbf_dPhiJJGG    = 2.81355, 
+                  -2.81351
+ vbf_massJJ      = 612.72, 
+                  612.719
+ vertexId0       = 0, 
+                  0
+ vertexMva0      = 0.996416, 
+                  0.996416
+ vertex_z        = -7.77578, 
+                  -7.77588
+ vhHad           = 0, 
+                  0
+ vhHad_mass_dijet = -999, 
+                  -999
+ vhLep           = 0, 
+                  0
+ vhMet           = 0, 
+                  0
+

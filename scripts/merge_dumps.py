@@ -20,6 +20,7 @@
 #
 # #############################################################################
 
+import ctypes
 import sys
 from sys import argv
 import json 
@@ -44,6 +45,13 @@ lastrun=9999999999999
 fn1 = argv.pop(1)
 fn2 = argv.pop(1)
 
+## Hack around the Globe bug with event number being uint32 instead of uint64
+use_32bit_event_number = True
+if (use_32bit_event_number):
+    reduce_precision_uint = lambda x: ctypes.c_uint32(x).value
+else:
+    reduce_precision_uint = lambda x: x # do nothing
+
 #_______________________________________________________________________________
 def get_sample_name(file_name):
     if 'globe' in file_name.lower():
@@ -57,6 +65,17 @@ nameA = get_sample_name(fn1)
 nameB = get_sample_name(fn2)
 
 #_______________________________________________________________________________
+def sanitize(xval):
+    ## protext against nan
+    if xval != xval:
+        xval = -999 ## nan -> -999
+    ## protect against small uninitialized values
+    if xval < 1e-10:
+        xval = 0.0
+    return xval
+
+
+#_______________________________________________________________________________
 def getlist(input):
     lst = {}
     lstDuplEvents = {}
@@ -67,13 +86,15 @@ def getlist(input):
     for line in input.split("\n"):
         vars = {}
         try:
-            for i in line.replace(": ",":").replace("="," ").replace("\t"," ").split(" "):
+            line = line.replace(": ",":").replace("="," ").replace("\t"," ")
+            for i in line.split(" "):
                 if i != "":
                     j = i.split(":")
                     if j[0] == "run" or j[0] == "lumi" or j[0] == "event" or j[0] == "type":
-                        globals()[j[0]] = abs(int(j[1]))
+                        globals()[j[0]] = reduce_precision_uint(abs(int(j[1])))
                     else:
                          vars[j[0]] = float(j[1])
+
                     
             if run > lastrun :
                 continue
@@ -154,10 +175,11 @@ print 'Common vars:', len(vars_common)
 print '    %d only %s:' % (len(vars_onlyA), nameA), ', '.join(vars_onlyA) 
 print '    %d only %s:' % (len(vars_onlyB), nameB), ', '.join(vars_onlyB) 
 
+vars_cat = 'cat vhLep vhHad vhMet tth'.split()
 mia_row = {}
 for x in vars_common:
-    mia_row[x] = -99.
-    if x in vars_common:
+    mia_row[x] = -999.
+    if x in vars_cat:
         mia_row[x] = -1.
 
 for ev in only1:
@@ -168,7 +190,7 @@ for ev in only2:
 
 print "Writing merged ASCII dump in `merged_ascii_dump.txt'"
 
-leaf_descriptor = 'run/l:lumi:event:%s[2]/F:' % vars_common[0] 
+leaf_descriptor = 'run/l:lumi:event:%s[2]/D:' % vars_common[0] 
 leaf_descriptor += ':'.join([name + '[2]' for name in vars_common[1:]])
 
 with open('merged_ascii_dump.txt', 'w') as ascii_output:
@@ -185,11 +207,11 @@ with open('merged_ascii_dump.txt', 'w') as ascii_output:
         line_items = ['%8d' % i for i in list(ev)]
         for name in vars_common:
             try:
-                line_items.append('%10g' % setA[name])
+                line_items.append('%10g' % sanitize(setA[name]))
             except KeyError:
                 line_items.append('%10g' % -999)
             try:
-                line_items.append('%10g' % setB[name])
+                line_items.append('%10g' % sanitize(setB[name]))
             except KeyError:
                 line_items.append('%10g' % -999)                    
         ascii_output.write('\t'.join(line_items) + '\n')
